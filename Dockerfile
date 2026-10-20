@@ -25,6 +25,7 @@ COPY --from=build --chown=node:node /app/.next/standalone ./
 COPY --from=build --chown=node:node /app/.next/static ./.next/static
 COPY --from=build --chown=node:node /app/public ./public
 COPY --from=build --chown=node:node /app/dist-scripts ./dist-scripts
+COPY --from=build --chown=node:node /app/scripts/session-token.mjs ./scripts/session-token.mjs
 COPY --from=build --chown=node:node /app/drizzle ./drizzle
 COPY --from=build --chown=node:node /app/seed ./seed
 # runner では npm run db:migrate / db:seed が束ねた JS を呼ぶようにする
