@@ -1,9 +1,10 @@
 "use client";
 
-import { useActionState, useEffect, useState, useTransition } from "react";
-import { deleteEntryAction, saveEntryAction, type ActionState } from "@/app/actions";
+import { useEffect, useState, useTransition } from "react";
+import { deleteEntryAction, saveEntryAction } from "@/app/actions";
 import { jstDate, jstTime } from "@/lib/time";
 import type { Activity, EntryView, Project, SheetDefaults } from "./types";
+import { useSubmit } from "./useSubmit";
 
 const field =
   "mt-1 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2.5 text-base dark:border-slate-600";
@@ -22,7 +23,7 @@ export function EntrySheet({
   activities: Activity[];
   onClose: () => void;
 }) {
-  const [state, action, pending] = useActionState<ActionState, FormData>(saveEntryAction, {});
+  const { state, onSubmit, pending } = useSubmit(saveEntryAction);
   const [deleting, startDelete] = useTransition();
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
@@ -66,7 +67,7 @@ export function EntrySheet({
             閉じる
           </button>
         </div>
-        <form action={action} className="space-y-3">
+        <form onSubmit={onSubmit} className="space-y-3">
           {entry && <input type="hidden" name="id" value={entry.id} />}
           <label className="block">
             <span className="text-sm text-slate-500">案件</span>
