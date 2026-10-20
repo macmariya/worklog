@@ -1,0 +1,9 @@
+{
+  "name": "worklog-runner",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "db:migrate": "node dist-scripts/migrate.mjs",
+    "db:seed": "node dist-scripts/seed.mjs"
+  }
+}
