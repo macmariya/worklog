@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { deleteEntryAction, saveEntryAction } from "@/app/actions";
 import { jstDate, jstTime } from "@/lib/time";
 import type { Activity, EntryView, Project, SheetDefaults } from "./types";
@@ -23,7 +23,7 @@ export function EntrySheet({
   activities: Activity[];
   onClose: () => void;
 }) {
-  const { state, onSubmit, pending } = useSubmit(saveEntryAction);
+  const { state, onSubmit, pending } = useSubmit(saveEntryAction, onClose);
   const [deleting, startDelete] = useTransition();
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
@@ -34,10 +34,6 @@ export function EntrySheet({
   const [projectId, setProjectId] = useState<number | "">(entry?.projectId ?? "");
   const [activityId, setActivityId] = useState<number | "">(entry?.activityId ?? "");
   const [activityTouched, setActivityTouched] = useState(!!entry);
-
-  useEffect(() => {
-    if (state.ok) onClose();
-  }, [state, onClose]);
 
   function onProject(v: string) {
     const id = v ? Number(v) : "";

@@ -50,7 +50,6 @@ export function HomeTimer({
   useEffect(() => {
     // 経過時間はクライアントで数える（サーバーへの問い合わせは開始・停止のときだけ）
     const t = setInterval(() => setNow(Date.now()), 1000);
-    setNow(Date.now());
     return () => clearInterval(t);
   }, []);
 
