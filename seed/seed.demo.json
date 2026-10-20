@@ -1,0 +1,20 @@
+{
+  "activities": [
+    { "name": "開発", "sortOrder": 10 },
+    { "name": "執筆", "sortOrder": 20 },
+    { "name": "動画制作", "sortOrder": 30 },
+    { "name": "営業", "sortOrder": 40 },
+    { "name": "学習", "sortOrder": 50 },
+    { "name": "事務", "sortOrder": 60 },
+    { "name": "その他", "sortOrder": 90 }
+  ],
+  "projects": [
+    { "name": "Client A", "isBusiness": true, "defaultActivity": "開発", "color": "blue", "sortOrder": 10 },
+    { "name": "Client B", "isBusiness": true, "defaultActivity": "動画制作", "color": "purple", "sortOrder": 20 },
+    { "name": "Blog", "isBusiness": true, "defaultActivity": "執筆", "color": "green", "sortOrder": 30 },
+    { "name": "Sales & Admin", "isBusiness": true, "defaultActivity": "事務", "color": "amber", "sortOrder": 40 },
+    { "name": "Study", "isBusiness": true, "defaultActivity": "学習", "color": "teal", "sortOrder": 50 },
+    { "name": "Personal", "isBusiness": false, "defaultActivity": "その他", "color": "gray", "sortOrder": 80 },
+    { "name": "Break", "isBusiness": false, "defaultActivity": "その他", "color": "orange", "sortOrder": 90 }
+  ]
+}
