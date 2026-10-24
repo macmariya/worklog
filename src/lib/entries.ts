@@ -1,5 +1,5 @@
 // エントリの読み書き。日付をまたぐ区間は必ず splitAtJstMidnight を通してから保存する（03 §4・F11）。
-import { and, asc, desc, eq, isNull, lt, ne, sql } from "drizzle-orm";
+import { and, asc, desc, eq, isNull, ne, sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import { activities, projects, timeEntries } from "@/db/schema";
 import { AppError, pgError } from "./errors";
@@ -193,12 +193,13 @@ export async function saveEntry(input: EntryInput, now = new Date()): Promise<Sa
 
       if (!input.confirmOverlap) {
         const until = endedAt ?? now;
+        // タイマーの記録は秒まで入り、手入力は分単位。分に切り捨てて比べ、前の記録の終了と同じ分に始めても重なりにしない
         const overlaps = await selectView(tx)
           .where(
             and(
               others,
-              lt(timeEntries.startedAt, until),
-              sql`coalesce(${timeEntries.endedAt}, now()) > ${startedAt.toISOString()}::timestamptz`,
+              sql`date_trunc('minute', ${timeEntries.startedAt}) < ${until.toISOString()}::timestamptz`,
+              sql`date_trunc('minute', coalesce(${timeEntries.endedAt}, now())) > ${startedAt.toISOString()}::timestamptz`,
             ),
           )
           .orderBy(asc(timeEntries.startedAt))
