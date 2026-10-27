@@ -1,5 +1,5 @@
 // エントリの読み書き。日付をまたぐ区間は必ず splitAtJstMidnight を通してから保存する（03 §4・F11）。
-import { and, asc, desc, eq, isNull, ne, sql } from "drizzle-orm";
+import { and, asc, desc, eq, isNull, ne, sql, type SQL } from "drizzle-orm";
 import { db } from "@/db/client";
 import { activities, projects, timeEntries } from "@/db/schema";
 import { AppError, pgError } from "./errors";
@@ -43,6 +43,13 @@ function selectView(q: Tx | typeof db = db) {
     .from(timeEntries)
     .innerJoin(projects, eq(projects.id, timeEntries.projectId))
     .innerJoin(activities, eq(activities.id, timeEntries.activityId));
+}
+
+/** 条件と並び順を渡してエントリを読む（月次レポート用） */
+export async function listEntries(where: SQL | undefined, orderBy: SQL[]): Promise<EntryView[]> {
+  return selectView()
+    .where(where)
+    .orderBy(...orderBy);
 }
 
 const RUNNING_TAKEN = "別の端末で記録が始まっています。画面を更新してください";
