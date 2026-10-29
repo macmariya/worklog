@@ -47,3 +47,8 @@ next-env.d.ts
 *.dump
 # 本番の案件名を含むシード（公開しない。06 §2）
 /seed/seed.local.json
+
+# Cloudflare（OpenNext・wrangler）
+/.open-next/
+/.wrangler/
+/.dev.vars

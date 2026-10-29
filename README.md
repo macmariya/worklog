@@ -1,7 +1,7 @@
 # worklog
 
 TypeScript と React 19（Next.js 16）で作った、一人用の作業時間記録アプリ。事業／私用と案件・作業種別で時間を記録し、家事按分の根拠と案件別の工数を貯める。
-LAN と Tailscale の内側（自宅 NAS の Docker）で動かす前提で、WAN には公開しない。
+本番は LAN と Tailscale の内側（自宅 NAS の Docker）で動かし、WAN には公開しない。デモデータだけを入れた版を Cloudflare Workers に置いている（[デモ](https://worklog-demo.macmariya.workers.dev)、パスワード `demo`。毎日 4:00 JST に初期状態へ戻る）。
 
 <p>
   <img src="docs/screenshots/home-mobile.png" width="250" alt="ホーム画面。記録中のタイマー、案件ボタン、今日の合計">
@@ -20,6 +20,7 @@ A single-user time tracker built with TypeScript and React 19 (Next.js 16), self
 - Monthly report with two allocation ratios (business ÷ calendar hours, business ÷ recorded hours), per project, per activity and per day, plus CSV export.
 - Daily `pg_dump` backup with a restore test that compares row counts and content hashes against the live database.
 - Stack: TypeScript, React 19, Next.js 16 (App Router, Server Components and Server Actions), Drizzle ORM, PostgreSQL 18, Docker Compose. The "起動" section below runs it with demo data.
+- Live demo with demo data only: https://worklog-demo.macmariya.workers.dev (password `demo`, reset daily at 4:00 JST). It runs on Cloudflare Workers through OpenNext, with Neon PostgreSQL behind Hyperdrive.
 
 ## 機能
 
@@ -82,6 +83,25 @@ npm run lint
 `.env.deploy`（コミットしない）に `DEPLOY_HOST`（ssh の接続名）・`DEPLOY_DIR`・`DEPLOY_URL` を書き、`./scripts/deploy-nas.sh` を実行する。
 既定はソースを送って NAS 上でビルドする。`--image` を付けると Mac で `linux/amd64` のイメージを作って `docker save | docker load` で持ち込む。
 
+## Cloudflare のデモ
+
+ポートフォリオ用に、デモデータだけを入れた版を Cloudflare Workers に置いている（本番の記録は置かない）。
+
+- Next.js は OpenNext（`@opennextjs/cloudflare`）で Workers 用に変換する。DB は Neon の PostgreSQL を Hyperdrive 経由で使い、スキーマとマイグレーションは NAS 版と同じものを流す
+- Workers では DB の接続をリクエストをまたいで使い回せない。`src/db/client.ts` は `DATABASE_URL` が無いときだけ、Hyperdrive からリクエストごとに接続を作る（プールは Hyperdrive が持つ）
+- Hyperdrive のクエリキャッシュは切っている。書いた直後の再表示で、書く前の行が返らないようにするため
+- 毎日 4:00 JST に Cron Trigger（`cloudflare/worker.ts`）が案件・作業種別・記録を入れ直す。中身は `src/lib/demo.ts` の `resetDemo`
+- `next build` は `.env` を読んでバンドルに埋め込む。手元には NAS 本番の `.env` があるので、`scripts/cf-demo.sh` は Git が追うファイルだけを一時フォルダに写してビルドし、本番の値がバンドルに入っていないか確かめてから配置する
+- ログイン画面のパスワードの案内は、`wrangler.jsonc` の `LOGIN_HINT` があるときだけ出る（NAS 版には出ない）
+- `src/proxy.ts`（Node.js ランタイム）は、OpenNext では実験的な扱いになっている
+
+```bash
+./scripts/cf-demo.sh preview   # ローカルの workerd で動かす（デモ DB は 127.0.0.1:5434、秘密は .dev.vars）
+./scripts/cf-demo.sh deploy    # Cloudflare に配置する
+```
+
+初回だけ、Hyperdrive の設定（キャッシュなし）を作って `wrangler.jsonc` に ID を書き、`npx wrangler secret put APP_PASSWORD` と `AUTH_SECRET` を入れる。Neon にはマイグレーションを流してから `WORKLOG_DEMO=1 node dist-scripts/reset-demo.mjs` でデモデータを入れる（`npm run build:scripts` の後）。`reset-demo` は `WORKLOG_DEMO=1` が無いと動かない。
+
 ## バックアップと復元
 
 `backup` コンテナ（`postgres:18.6-alpine` と busybox の crond）が毎日 3:00（JST）に `backups/worklog_YYYYMMDD.dump` を書く。書いた直後に `pg_restore --list` で読めることを確かめ、`BACKUP_KEEP_DAYS`（既定 30）日より古いものを消す。ダンプは個人のデータを含むので 600 で置く。
@@ -98,4 +118,4 @@ docker compose logs backup                            # 定期実行の結果
 
 - 複数ユーザー・権限・チーム集計（一人用に絞っている）
 - 請求書・単価・売上の管理（工数と按分の根拠を貯めるところまで）
-- インターネットへの公開（LAN と Tailscale の内側だけで使う）
+- 本番のインターネットへの公開（本番は LAN と Tailscale の内側だけで使う。公開しているのはデモデータの版だけ）

@@ -1,0 +1,28 @@
+// Cloudflare Workers に置くデモ版（デモデータだけ。本番は NAS の Docker）。README の「Cloudflare のデモ」参照
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "worklog-demo",
+  "main": "cloudflare/worker.ts",
+  "compatibility_date": "2026-10-29",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  // 毎日 19:00 UTC（4:00 JST）にデモを初期状態に戻す
+  "triggers": { "crons": ["0 19 * * *"] },
+  "observability": {
+    "enabled": true
+  },
+  "vars": {
+    "LOGIN_HINT": "デモ版です。パスワードは demo。記録は誰でも書き換えられ、毎日 4:00（日本時間）に初期状態へ戻ります。"
+  },
+  // APP_PASSWORD と AUTH_SECRET は wrangler secret put で入れる（ローカルは .dev.vars）
+  "hyperdrive": [
+    {
+      "binding": "HYPERDRIVE",
+      "id": "0ffaaf7bab2e44479c925469a35c7c43",
+      "localConnectionString": "postgres://worklog:demo@localhost:5434/worklog"
+    }
+  ]
+}

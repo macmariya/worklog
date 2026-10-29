@@ -13,9 +13,14 @@
     "db:migrate": "tsx scripts/migrate.ts",
     "db:seed": "tsx scripts/seed.ts",
     "db:seed-demo-entries": "tsx scripts/seed-demo-entries.ts",
-    "build:scripts": "esbuild scripts/migrate.ts scripts/seed.ts scripts/seed-demo-entries.ts --bundle --platform=node --target=node24 --format=esm --outdir=dist-scripts --out-extension:.js=.mjs --banner:js=\"import{createRequire}from'module';const require=createRequire(import.meta.url);\""
+    "build:scripts": "esbuild scripts/migrate.ts scripts/seed.ts scripts/seed-demo-entries.ts scripts/reset-demo.ts --bundle --platform=node --target=node24 --format=esm --outdir=dist-scripts --out-extension:.js=.mjs --banner:js=\"import{createRequire}from'module';const require=createRequire(import.meta.url);\"",
+    "cf:build": "./scripts/cf-demo.sh build",
+    "cf:preview": "./scripts/cf-demo.sh preview",
+    "cf:deploy": "./scripts/cf-demo.sh deploy",
+    "db:reset-demo": "tsx scripts/reset-demo.ts"
   },
   "dependencies": {
+    "@opennextjs/cloudflare": "1.20.14",
     "drizzle-orm": "0.45.4",
     "next": "16.4.2",
     "postgres": "3.4.9",
@@ -36,6 +41,7 @@
     "tailwindcss": "4.3.3",
     "tsx": "4.23.15",
     "typescript": "5.9.3",
-    "vitest": "5.0.5"
+    "vitest": "5.0.5",
+    "wrangler": "4.155.0"
   }
 }

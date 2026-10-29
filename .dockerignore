@@ -8,3 +8,6 @@ dist-scripts
 backups
 *.dump
 coverage
+.dev.vars
+.open-next
+.wrangler
