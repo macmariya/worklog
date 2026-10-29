@@ -3,7 +3,23 @@
 一人用の作業時間記録アプリ。事業／私用と案件・作業種別で時間を記録し、家事按分の根拠と案件別の工数を貯める。
 LAN と Tailscale の内側（自宅 NAS の Docker）で動かす前提で、WAN には公開しない。
 
-> Phase 2（月次レポート・CSV・バックアップ）まで。英語の README とスクリーンショットは Phase 3 で整える。
+<p>
+  <img src="docs/screenshots/home-mobile.png" width="250" alt="ホーム画面。記録中のタイマー、案件ボタン、今日の合計">
+  <img src="docs/screenshots/month-mobile.png" width="250" alt="月次レポート。事業・私用・按分率と案件別の時間">
+  <img src="docs/screenshots/day-mobile.png" width="250" alt="日次画面。その日の記録の一覧と合計">
+</p>
+
+画面はすべてデモデータ（`seed/seed.demo.json` と `scripts/seed-demo-entries.ts`）で、実際の案件名や記録は含まない。
+
+## English summary
+
+A single-user time tracker, self-hosted on a home NAS (Docker, LAN and Tailscale only). Japanese sole proprietors need time-based evidence to split home expenses between business and private use, so each entry is tagged business or private, with a project and an activity type.
+
+- Start and stop a timer from the phone; edit or add entries by hand. Only one entry can run at a time, and the database enforces it with a partial unique index.
+- An entry never crosses midnight JST: the app splits it at 0:00, and a CHECK constraint backs this up.
+- Monthly report with two allocation ratios (business ÷ calendar hours, business ÷ recorded hours), per project, per activity and per day, plus CSV export.
+- Daily `pg_dump` backup with a restore test that compares row counts and content hashes against the live database.
+- Stack: Next.js 16 (App Router), TypeScript, Drizzle ORM, PostgreSQL 18, Docker Compose. The "起動" section below runs it with demo data.
 
 ## 機能
 
@@ -40,6 +56,12 @@ docker compose exec app npm run db:seed   # seed/seed.demo.json（汎用名）�
 
 `http://localhost:3100` を開き、`.env` の `APP_PASSWORD` でログインする。
 
+画面を試すだけなら、直近 28 日分のデモ記録も入れられる（記録が 1 件でもある DB では何もしない）。
+
+```bash
+docker compose exec app npm run db:seed-demo-entries
+```
+
 ## 開発
 
 ```bash
@@ -68,3 +90,9 @@ docker compose logs backup                            # 定期実行の結果
 ```
 
 本番へ戻すときは app を止めてから `pg_restore --clean --if-exists --no-owner -d worklog <dump>` を流す（この手順はまだ本番で試していない。試したのは別 DB への復元と突合まで）。
+
+## 作らないもの
+
+- 複数ユーザー・権限・チーム集計（一人用に絞っている）
+- 請求書・単価・売上の管理（工数と按分の根拠を貯めるところまで）
+- インターネットへの公開（LAN と Tailscale の内側だけで使う）

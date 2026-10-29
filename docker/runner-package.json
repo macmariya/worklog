@@ -4,6 +4,7 @@
   "scripts": {
     "start": "node server.js",
     "db:migrate": "node dist-scripts/migrate.mjs",
-    "db:seed": "node dist-scripts/seed.mjs"
+    "db:seed": "node dist-scripts/seed.mjs",
+    "db:seed-demo-entries": "node dist-scripts/seed-demo-entries.mjs"
   }
 }

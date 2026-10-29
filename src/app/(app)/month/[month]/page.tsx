@@ -19,7 +19,7 @@ function Cell({ label, sec, value, strong }: { label: string; sec?: number; valu
       }`}
     >
       <div className={`text-xs ${sub}`}>{label}</div>
-      <div className="font-bold tabular-nums">{value ?? hm(sec!)}</div>
+      <div className="whitespace-nowrap text-sm font-bold tabular-nums sm:text-base">{value ?? hm(sec!)}</div>
       {sec !== undefined && <div className={`text-xs tabular-nums ${sub}`}>{hours(sec)}</div>}
     </div>
   );

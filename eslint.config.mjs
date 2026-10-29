@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // npm run build:scripts が作るバンドル（gitignore 済み）
+    "dist-scripts/**",
   ]),
 ]);
 
