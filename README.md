@@ -1,6 +1,6 @@
 # worklog
 
-一人用の作業時間記録アプリ。事業／私用と案件・作業種別で時間を記録し、家事按分の根拠と案件別の工数を貯める。
+TypeScript と React 19（Next.js 16）で作った、一人用の作業時間記録アプリ。事業／私用と案件・作業種別で時間を記録し、家事按分の根拠と案件別の工数を貯める。
 LAN と Tailscale の内側（自宅 NAS の Docker）で動かす前提で、WAN には公開しない。
 
 <p>
@@ -13,13 +13,13 @@ LAN と Tailscale の内側（自宅 NAS の Docker）で動かす前提で、WA
 
 ## English summary
 
-A single-user time tracker, self-hosted on a home NAS (Docker, LAN and Tailscale only). Japanese sole proprietors need time-based evidence to split home expenses between business and private use, so each entry is tagged business or private, with a project and an activity type.
+A single-user time tracker built with TypeScript and React 19 (Next.js 16), self-hosted on a home NAS (Docker, LAN and Tailscale only). Japanese sole proprietors need time-based evidence to split home expenses between business and private use, so each entry is tagged business or private, with a project and an activity type.
 
 - Start and stop a timer from the phone; edit or add entries by hand. Only one entry can run at a time, and the database enforces it with a partial unique index.
 - An entry never crosses midnight JST: the app splits it at 0:00, and a CHECK constraint backs this up.
 - Monthly report with two allocation ratios (business ÷ calendar hours, business ÷ recorded hours), per project, per activity and per day, plus CSV export.
 - Daily `pg_dump` backup with a restore test that compares row counts and content hashes against the live database.
-- Stack: Next.js 16 (App Router), TypeScript, Drizzle ORM, PostgreSQL 18, Docker Compose. The "起動" section below runs it with demo data.
+- Stack: TypeScript, React 19, Next.js 16 (App Router, Server Components and Server Actions), Drizzle ORM, PostgreSQL 18, Docker Compose. The "起動" section below runs it with demo data.
 
 ## 機能
 
@@ -43,7 +43,10 @@ A single-user time tracker, self-hosted on a home NAS (Docker, LAN and Tailscale
 
 ## 構成
 
-Next.js 16（App Router）／ TypeScript ／ Drizzle ORM ／ PostgreSQL 18 ／ Docker Compose（`app`・`db`・`backup` の 3 コンテナ）。Node.js 24。
+TypeScript ／ React 19 ／ Next.js 16（App Router）／ Drizzle ORM ／ PostgreSQL 18 ／ Docker Compose（`app`・`db`・`backup` の 3 コンテナ）。Node.js 24。
+
+- 画面は Server Components で DB を読み、操作は Server Actions で書く。外から呼ぶ JSON API（`/api/timer` など）と CSV 出力だけ Route Handler にしている
+- 操作の反応は Client Components で受ける（タイマーの経過表示、`useOptimistic` で開始・停止を先に画面へ反映、`useActionState` でログインのエラー表示、`useTransition` で送信中の表示）
 
 ## 起動
 
